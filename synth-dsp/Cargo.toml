@@ -1,0 +1,12 @@
+[package]
+name = "synth-dsp"
+version = "0.1.0"
+edition = "2021"
+description = "Hot-reloadable DSP code for the synth — oscillators, envelopes, voice management"
+
+[lib]
+crate-type = ["rlib", "dylib"]
+
+[dependencies]
+synth-state = { path = "../synth-state" }
+crossbeam-channel = { workspace = true }

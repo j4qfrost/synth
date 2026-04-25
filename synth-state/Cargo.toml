@@ -1,0 +1,5 @@
+[package]
+name = "synth-state"
+version = "0.1.0"
+edition = "2021"
+description = "Stable data types shared between the synth binary and the hot-reloadable DSP dylib"

@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = ["synth", "synth-state", "synth-dsp"]
+
+[workspace.dependencies]
+cpal = "0.15.2"
+eframe = { version = "0.27", default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
+egui = "0.27"
+midir = "0.10"
+crossbeam-channel = "0.5"
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"
+hot-lib-reloader = "0.7"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+
+# Hot-reload only really matters in dev, but keep the dylib usable in release too.
+[profile.dev.package."*"]
+opt-level = 1

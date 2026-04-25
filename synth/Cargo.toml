@@ -1,0 +1,18 @@
+[package]
+name = "synth"
+version = "0.1.0"
+edition = "2021"
+description = "Polyphonic Rust synthesizer with hot-reloadable DSP"
+
+[dependencies]
+synth-state = { path = "../synth-state" }
+synth-dsp = { path = "../synth-dsp" }
+hot-lib-reloader = { workspace = true }
+cpal = { workspace = true }
+eframe = { workspace = true }
+egui = { workspace = true }
+midir = { workspace = true }
+crossbeam-channel = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
