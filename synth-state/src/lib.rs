@@ -74,6 +74,27 @@ impl Envelope {
 
 #[derive(Clone, Copy)]
 #[repr(C)]
+pub struct FilterState {
+    pub low: f32,
+    pub band: f32,
+}
+
+impl FilterState {
+    pub const fn new() -> Self { Self { low: 0.0, band: 0.0 } }
+}
+
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub struct LfoState {
+    pub phase: f32,
+}
+
+impl LfoState {
+    pub const fn new() -> Self { Self { phase: 0.0 } }
+}
+
+#[derive(Clone, Copy)]
+#[repr(C)]
 pub struct Voice {
     pub note: u8,
     pub velocity: f32,
@@ -81,6 +102,7 @@ pub struct Voice {
     pub freq: f32,
     pub env: Envelope,
     pub age: u64,
+    pub filter: FilterState,
 }
 
 impl Voice {
@@ -92,6 +114,7 @@ impl Voice {
             freq: 0.0,
             env: Envelope::new(),
             age: 0,
+            filter: FilterState::new(),
         }
     }
 }
@@ -102,6 +125,7 @@ pub struct VoiceManager {
     pub sample_rate: f32,
     pub next_age: u64,
     pub params: Arc<SharedParams>,
+    pub lfo: LfoState,
 }
 
 impl VoiceManager {
@@ -111,6 +135,7 @@ impl VoiceManager {
             sample_rate,
             next_age: 1,
             params,
+            lfo: LfoState::new(),
         }
     }
 }
@@ -125,6 +150,10 @@ pub struct SharedParams {
     master_volume: AtomicU32,
     osc_type: AtomicU32,
     pub midi_connected: AtomicBool,
+    cutoff_hz: AtomicU32,
+    resonance: AtomicU32,
+    lfo_rate_hz: AtomicU32,
+    lfo_depth_oct: AtomicU32,
 }
 
 impl SharedParams {
@@ -137,6 +166,10 @@ impl SharedParams {
             master_volume: AtomicU32::new(0.5_f32.to_bits()),
             osc_type: AtomicU32::new(OscType::Sine.as_u32()),
             midi_connected: AtomicBool::new(false),
+            cutoff_hz: AtomicU32::new(8000.0_f32.to_bits()),
+            resonance: AtomicU32::new(0.0_f32.to_bits()),
+            lfo_rate_hz: AtomicU32::new(1.0_f32.to_bits()),
+            lfo_depth_oct: AtomicU32::new(0.0_f32.to_bits()),
         })
     }
 
@@ -154,6 +187,10 @@ impl SharedParams {
     pub fn release(&self) -> f32 { Self::get(&self.release) }
     pub fn master_volume(&self) -> f32 { Self::get(&self.master_volume) }
     pub fn osc_type(&self) -> OscType { OscType::from_u32(self.osc_type.load(Ordering::Relaxed)) }
+    pub fn cutoff_hz(&self) -> f32 { Self::get(&self.cutoff_hz) }
+    pub fn resonance(&self) -> f32 { Self::get(&self.resonance) }
+    pub fn lfo_rate_hz(&self) -> f32 { Self::get(&self.lfo_rate_hz) }
+    pub fn lfo_depth_oct(&self) -> f32 { Self::get(&self.lfo_depth_oct) }
 
     pub fn set_attack(&self, v: f32) { Self::set(&self.attack, v); }
     pub fn set_decay(&self, v: f32) { Self::set(&self.decay, v); }
@@ -161,4 +198,8 @@ impl SharedParams {
     pub fn set_release(&self, v: f32) { Self::set(&self.release, v); }
     pub fn set_master_volume(&self, v: f32) { Self::set(&self.master_volume, v); }
     pub fn set_osc_type(&self, t: OscType) { self.osc_type.store(t.as_u32(), Ordering::Relaxed); }
+    pub fn set_cutoff_hz(&self, v: f32) { Self::set(&self.cutoff_hz, v); }
+    pub fn set_resonance(&self, v: f32) { Self::set(&self.resonance, v); }
+    pub fn set_lfo_rate_hz(&self, v: f32) { Self::set(&self.lfo_rate_hz, v); }
+    pub fn set_lfo_depth_oct(&self, v: f32) { Self::set(&self.lfo_depth_oct, v); }
 }
