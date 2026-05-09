@@ -140,6 +140,44 @@ impl eframe::App for SynthApp {
             }
 
             ui.separator();
+            ui.label("Filter:");
+
+            let mut cutoff = self.params.cutoff_hz();
+            if ui
+                .add(egui::Slider::new(&mut cutoff, 20.0..=20000.0).text("Cutoff (Hz)").logarithmic(true))
+                .changed()
+            {
+                self.params.set_cutoff_hz(cutoff);
+            }
+
+            let mut res = self.params.resonance();
+            if ui
+                .add(egui::Slider::new(&mut res, 0.0..=0.99).text("Resonance"))
+                .changed()
+            {
+                self.params.set_resonance(res);
+            }
+
+            ui.separator();
+            ui.label("LFO:");
+
+            let mut lfo_rate = self.params.lfo_rate_hz();
+            if ui
+                .add(egui::Slider::new(&mut lfo_rate, 0.05..=20.0).text("LFO Rate (Hz)").logarithmic(true))
+                .changed()
+            {
+                self.params.set_lfo_rate_hz(lfo_rate);
+            }
+
+            let mut lfo_depth = self.params.lfo_depth_oct();
+            if ui
+                .add(egui::Slider::new(&mut lfo_depth, 0.0..=4.0).text("LFO Depth (oct)"))
+                .changed()
+            {
+                self.params.set_lfo_depth_oct(lfo_depth);
+            }
+
+            ui.separator();
 
             let mut mv = self.params.master_volume();
             if ui
