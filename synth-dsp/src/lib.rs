@@ -12,9 +12,9 @@
 //! - The audio thread calls into here; no allocation, no syscalls, no logging.
 
 use crossbeam_channel::Receiver;
-use std::f32::consts::TAU;
+use std::f32::consts::{PI, TAU};
 use synth_state::{
-    AudioMessage, EnvStage, Envelope, OscType, Voice, VoiceManager, NUM_VOICES,
+    AudioMessage, EnvStage, Envelope, FilterState, OscType, Voice, VoiceManager, NUM_VOICES,
 };
 
 // === Public hot-reloadable entry points ====================================
@@ -57,11 +57,28 @@ pub fn render_mono(vm: &mut VoiceManager, out: &mut [f32]) {
     let release = vm.params.release();
     let master = vm.params.master_volume();
     let osc = vm.params.osc_type();
+    let base_cutoff = vm.params.cutoff_hz();
+    let resonance = vm.params.resonance();
+    let lfo_rate = vm.params.lfo_rate_hz();
+    let lfo_depth = vm.params.lfo_depth_oct();
+    let sample_rate = vm.sample_rate;
 
     for sample in out.iter_mut() {
+        // Advance LFO once per sample.
+        vm.lfo.phase += lfo_rate / sample_rate;
+        if vm.lfo.phase >= 1.0 {
+            vm.lfo.phase -= 1.0;
+        }
+        let lfo_value = 1.0 - 4.0 * (vm.lfo.phase - 0.5).abs(); // triangle -1..1
+        let effective_cutoff = (base_cutoff * 2_f32.powf(lfo_value * lfo_depth))
+            .clamp(20.0, 20_000.0);
+
         let mut acc = 0.0;
         for v in vm.voices.iter_mut() {
-            acc += render_voice_sample(v, dt, osc, attack, decay, sustain, release);
+            acc += render_voice_sample(
+                v, dt, osc, attack, decay, sustain, release,
+                effective_cutoff, resonance, sample_rate,
+            );
         }
         *sample = (acc / NUM_VOICES as f32) * master;
     }
@@ -166,6 +183,21 @@ fn env_tick(env: &mut Envelope, dt: f32, attack: f32, decay: f32, sustain: f32, 
     env.level
 }
 
+fn svf_lowpass(
+    state: &mut FilterState,
+    input: f32,
+    cutoff_hz: f32,
+    resonance: f32,
+    sample_rate: f32,
+) -> f32 {
+    let f = 2.0 * (PI * cutoff_hz / sample_rate).sin();
+    let q = 1.0 - resonance.clamp(0.0, 0.999);
+    state.low += f * state.band;
+    let high = input - state.low - q * state.band;
+    state.band += f * high;
+    state.low
+}
+
 fn render_voice_sample(
     v: &mut Voice,
     dt: f32,
@@ -174,6 +206,9 @@ fn render_voice_sample(
     decay: f32,
     sustain: f32,
     release: f32,
+    cutoff_hz: f32,
+    resonance: f32,
+    sample_rate: f32,
 ) -> f32 {
     if v.env.stage == EnvStage::Idle {
         return 0.0;
@@ -186,6 +221,7 @@ fn render_voice_sample(
     if v.phase >= 1.0 {
         v.phase -= v.phase.floor();
     }
+    let filtered = svf_lowpass(&mut v.filter, raw, cutoff_hz, resonance, sample_rate);
     let env = env_tick(&mut v.env, dt, attack, decay, sustain, release);
-    raw * env * v.velocity
+    filtered * env * v.velocity
 }
