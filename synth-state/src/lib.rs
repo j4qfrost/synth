@@ -80,7 +80,12 @@ pub struct FilterState {
 }
 
 impl FilterState {
-    pub const fn new() -> Self { Self { low: 0.0, band: 0.0 } }
+    pub const fn new() -> Self {
+        Self {
+            low: 0.0,
+            band: 0.0,
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -90,7 +95,9 @@ pub struct LfoState {
 }
 
 impl LfoState {
-    pub const fn new() -> Self { Self { phase: 0.0 } }
+    pub const fn new() -> Self {
+        Self { phase: 0.0 }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -181,25 +188,65 @@ impl SharedParams {
         field.store(value.to_bits(), Ordering::Relaxed);
     }
 
-    pub fn attack(&self) -> f32 { Self::get(&self.attack) }
-    pub fn decay(&self) -> f32 { Self::get(&self.decay) }
-    pub fn sustain(&self) -> f32 { Self::get(&self.sustain) }
-    pub fn release(&self) -> f32 { Self::get(&self.release) }
-    pub fn master_volume(&self) -> f32 { Self::get(&self.master_volume) }
-    pub fn osc_type(&self) -> OscType { OscType::from_u32(self.osc_type.load(Ordering::Relaxed)) }
-    pub fn cutoff_hz(&self) -> f32 { Self::get(&self.cutoff_hz) }
-    pub fn resonance(&self) -> f32 { Self::get(&self.resonance) }
-    pub fn lfo_rate_hz(&self) -> f32 { Self::get(&self.lfo_rate_hz) }
-    pub fn lfo_depth_oct(&self) -> f32 { Self::get(&self.lfo_depth_oct) }
+    pub fn attack(&self) -> f32 {
+        Self::get(&self.attack)
+    }
+    pub fn decay(&self) -> f32 {
+        Self::get(&self.decay)
+    }
+    pub fn sustain(&self) -> f32 {
+        Self::get(&self.sustain)
+    }
+    pub fn release(&self) -> f32 {
+        Self::get(&self.release)
+    }
+    pub fn master_volume(&self) -> f32 {
+        Self::get(&self.master_volume)
+    }
+    pub fn osc_type(&self) -> OscType {
+        OscType::from_u32(self.osc_type.load(Ordering::Relaxed))
+    }
+    pub fn cutoff_hz(&self) -> f32 {
+        Self::get(&self.cutoff_hz)
+    }
+    pub fn resonance(&self) -> f32 {
+        Self::get(&self.resonance)
+    }
+    pub fn lfo_rate_hz(&self) -> f32 {
+        Self::get(&self.lfo_rate_hz)
+    }
+    pub fn lfo_depth_oct(&self) -> f32 {
+        Self::get(&self.lfo_depth_oct)
+    }
 
-    pub fn set_attack(&self, v: f32) { Self::set(&self.attack, v); }
-    pub fn set_decay(&self, v: f32) { Self::set(&self.decay, v); }
-    pub fn set_sustain(&self, v: f32) { Self::set(&self.sustain, v); }
-    pub fn set_release(&self, v: f32) { Self::set(&self.release, v); }
-    pub fn set_master_volume(&self, v: f32) { Self::set(&self.master_volume, v); }
-    pub fn set_osc_type(&self, t: OscType) { self.osc_type.store(t.as_u32(), Ordering::Relaxed); }
-    pub fn set_cutoff_hz(&self, v: f32) { Self::set(&self.cutoff_hz, v); }
-    pub fn set_resonance(&self, v: f32) { Self::set(&self.resonance, v); }
-    pub fn set_lfo_rate_hz(&self, v: f32) { Self::set(&self.lfo_rate_hz, v); }
-    pub fn set_lfo_depth_oct(&self, v: f32) { Self::set(&self.lfo_depth_oct, v); }
+    pub fn set_attack(&self, v: f32) {
+        Self::set(&self.attack, v);
+    }
+    pub fn set_decay(&self, v: f32) {
+        Self::set(&self.decay, v);
+    }
+    pub fn set_sustain(&self, v: f32) {
+        Self::set(&self.sustain, v);
+    }
+    pub fn set_release(&self, v: f32) {
+        Self::set(&self.release, v);
+    }
+    pub fn set_master_volume(&self, v: f32) {
+        Self::set(&self.master_volume, v);
+    }
+    pub fn set_osc_type(&self, t: OscType) {
+        self.osc_type.store(t.as_u32(), Ordering::Relaxed);
+    }
+    pub fn set_cutoff_hz(&self, v: f32) {
+        Self::set(&self.cutoff_hz, v);
+    }
+    pub fn set_resonance(&self, v: f32) {
+        Self::set(&self.resonance, v);
+    }
+    pub fn set_lfo_rate_hz(&self, v: f32) {
+        Self::set(&self.lfo_rate_hz, v);
+    }
+    pub fn set_lfo_depth_oct(&self, v: f32) {
+        Self::set(&self.lfo_depth_oct, v);
+    }
 }

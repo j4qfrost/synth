@@ -1,9 +1,9 @@
-use synth_state::{AudioMessage, SharedParams};
 use anyhow::Result;
 use crossbeam_channel::Sender;
 use midir::{Ignore, MidiInput, MidiInputConnection};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
+use synth_state::{AudioMessage, SharedParams};
 
 pub struct MidiHandle {
     pub port_name: Option<String>,
@@ -25,9 +25,7 @@ pub fn start_midi(tx: Sender<AudioMessage>, params: Arc<SharedParams>) -> Result
     }
 
     let port = &ports[0];
-    let port_name = input
-        .port_name(port)
-        .unwrap_or_else(|_| "<unknown>".into());
+    let port_name = input.port_name(port).unwrap_or_else(|_| "<unknown>".into());
     log::info!("opening MIDI input: {port_name}");
 
     let conn = input.connect(

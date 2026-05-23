@@ -1,7 +1,7 @@
-use synth_state::AudioMessage;
 use crossbeam_channel::Sender;
 use egui::Key;
 use std::collections::HashSet;
+use synth_state::AudioMessage;
 
 /// Maps the QWERTY keyboard to a one-octave-plus piano layout starting at C4 (MIDI 60).
 /// White keys: A S D F G H J K = C D E F G A B C
@@ -45,7 +45,10 @@ impl KeyboardState {
                     } => {
                         if let Some(note) = key_to_note(*key) {
                             if self.held.insert(note) {
-                                let _ = tx.try_send(AudioMessage::NoteOn { note, velocity: 100 });
+                                let _ = tx.try_send(AudioMessage::NoteOn {
+                                    note,
+                                    velocity: 100,
+                                });
                             }
                         }
                     }

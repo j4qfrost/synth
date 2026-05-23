@@ -12,10 +12,7 @@ pub struct AudioHandle {
     _stream: cpal::Stream,
 }
 
-pub fn start_audio(
-    rx: Receiver<AudioMessage>,
-    params: Arc<SharedParams>,
-) -> Result<AudioHandle> {
+pub fn start_audio(rx: Receiver<AudioMessage>, params: Arc<SharedParams>) -> Result<AudioHandle> {
     let host = cpal::default_host();
     let device = host
         .default_output_device()
