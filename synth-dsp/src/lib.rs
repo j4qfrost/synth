@@ -206,6 +206,7 @@ fn svf_lowpass(
     state.low
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_voice_sample(
     v: &mut Voice,
     dt: f32,

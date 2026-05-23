@@ -72,6 +72,12 @@ impl Envelope {
     }
 }
 
+impl Default for Envelope {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Clone, Copy)]
 #[repr(C)]
 pub struct FilterState {
@@ -88,6 +94,12 @@ impl FilterState {
     }
 }
 
+impl Default for FilterState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Clone, Copy)]
 #[repr(C)]
 pub struct LfoState {
@@ -97,6 +109,12 @@ pub struct LfoState {
 impl LfoState {
     pub const fn new() -> Self {
         Self { phase: 0.0 }
+    }
+}
+
+impl Default for LfoState {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -123,6 +141,12 @@ impl Voice {
             age: 0,
             filter: FilterState::new(),
         }
+    }
+}
+
+impl Default for Voice {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
