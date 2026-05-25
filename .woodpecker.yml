@@ -21,9 +21,9 @@ clone:
 
 steps:
   check:
-    image: rust:1
+    image: rust:1.95-bookworm
     commands:
-      - apt-get update -qq && apt-get install -y --no-install-recommends libasound2-dev pkg-config
+      - apt-get update -qq && apt-get install -y --no-install-recommends libasound2-dev libwayland-dev libxkbcommon-dev libx11-dev libudev-dev pkg-config
       - rustup component add rustfmt clippy
       - cargo fmt --all --check
       - cargo clippy --workspace --all-targets -- -D warnings
