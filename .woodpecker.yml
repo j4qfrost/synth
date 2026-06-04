@@ -28,3 +28,11 @@ steps:
       - cargo fmt --all --check
       - cargo clippy --workspace --all-targets -- -D warnings
       - cargo test --workspace --no-run
+
+  nix-build:
+    image: nixos/nix:2.24.9
+    environment:
+      NIX_CONFIG: "experimental-features = nix-command flakes"
+    commands:
+      - nix flake check
+      - nix build
