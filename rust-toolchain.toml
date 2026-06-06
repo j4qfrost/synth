@@ -1,0 +1,6 @@
+[toolchain]
+# Pinned. See ~/Projects/bluequest's commit 0924cb9 for the rationale —
+# `channel = "stable"` silently bumps every release and breaks
+# `cargo fmt --check` against code formatted under the prior version.
+channel = "1.95.0"
+components = ["rustfmt", "clippy"]
