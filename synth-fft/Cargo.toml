@@ -1,0 +1,8 @@
+[package]
+name = "synth-fft"
+version = "0.1.0"
+edition = "2021"
+description = "Real-time spectrum analysis (FFT, band energies, onset detection) for the synth"
+
+[dependencies]
+rustfft = { workspace = true }

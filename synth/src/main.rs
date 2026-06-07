@@ -1,12 +1,15 @@
+mod analysis;
 mod audio;
 mod dsp;
 mod keyboard;
 mod midi;
+mod osc_out;
 mod ui;
 
 use anyhow::Result;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use synth_fft::SpectrumFrame;
 use synth_state::SharedParams;
 use ui::SynthApp;
 
@@ -16,8 +19,18 @@ fn main() -> Result<()> {
     let (tx, rx) = crossbeam_channel::bounded(1024);
     let params = SharedParams::new();
 
-    let audio_handle = audio::start_audio(rx, params.clone())?;
+    let (audio_handle, spectrum_tap) = audio::start_audio(rx, params.clone())?;
     let midi_handle = midi::start_midi(tx.clone(), params.clone())?;
+
+    // Spectrum analysis: a dedicated thread drains the audio tap, runs the FFT,
+    // and publishes frames here for the GUI + OSC out to thea.
+    let spectrum = Arc::new(Mutex::new(SpectrumFrame::default()));
+    let _analysis = analysis::start(
+        spectrum_tap,
+        params.clone(),
+        audio_handle.sample_rate as f32,
+        spectrum.clone(),
+    );
 
     // Watcher thread: bumps a counter every time the DSP dylib is hot-swapped.
     // The UI polls the counter to flash a "RELOADED" indicator.
@@ -41,7 +54,7 @@ fn main() -> Result<()> {
 
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([520.0, 580.0])
+            .with_inner_size([520.0, 780.0])
             .with_title("Rust Synth (hot-reload)"),
         ..Default::default()
     };
@@ -58,6 +71,7 @@ fn main() -> Result<()> {
                     sample_rate,
                     midi_port,
                     reload_count,
+                    spectrum,
                 ),
                 _audio: audio_handle,
                 _midi: midi_handle,

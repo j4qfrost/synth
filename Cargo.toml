@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["synth", "synth-state", "synth-dsp"]
+members = ["synth", "synth-state", "synth-dsp", "synth-fft"]
 
 [workspace.dependencies]
 cpal = "0.15.2"
@@ -12,6 +12,11 @@ anyhow = "1"
 log = "0.4"
 env_logger = "0.11"
 hot-lib-reloader = "0.7"
+synth-state = { path = "synth-state" }
+synth-fft = { path = "synth-fft" }
+rustfft = "6"
+ringbuf = "0.4"
+rosc = "0.11"
 
 [profile.release]
 opt-level = 3
