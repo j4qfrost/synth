@@ -185,6 +185,11 @@ pub struct SharedParams {
     resonance: AtomicU32,
     lfo_rate_hz: AtomicU32,
     lfo_depth_oct: AtomicU32,
+    // Spectrum-analyzer controls. `fft_smoothing` is stored as `f32::to_bits`
+    // like the others; `fft_size` holds the integer size directly.
+    fft_smoothing: AtomicU32,
+    fft_size: AtomicU32,
+    pub osc_enabled: AtomicBool,
 }
 
 impl SharedParams {
@@ -201,6 +206,9 @@ impl SharedParams {
             resonance: AtomicU32::new(0.0_f32.to_bits()),
             lfo_rate_hz: AtomicU32::new(1.0_f32.to_bits()),
             lfo_depth_oct: AtomicU32::new(0.0_f32.to_bits()),
+            fft_smoothing: AtomicU32::new(0.6_f32.to_bits()),
+            fft_size: AtomicU32::new(2048),
+            osc_enabled: AtomicBool::new(true),
         })
     }
 
@@ -272,5 +280,24 @@ impl SharedParams {
     }
     pub fn set_lfo_depth_oct(&self, v: f32) {
         Self::set(&self.lfo_depth_oct, v);
+    }
+
+    pub fn fft_smoothing(&self) -> f32 {
+        Self::get(&self.fft_smoothing)
+    }
+    pub fn set_fft_smoothing(&self, v: f32) {
+        Self::set(&self.fft_smoothing, v);
+    }
+    pub fn fft_size(&self) -> u32 {
+        self.fft_size.load(Ordering::Relaxed)
+    }
+    pub fn set_fft_size(&self, v: u32) {
+        self.fft_size.store(v, Ordering::Relaxed);
+    }
+    pub fn osc_enabled(&self) -> bool {
+        self.osc_enabled.load(Ordering::Relaxed)
+    }
+    pub fn set_osc_enabled(&self, v: bool) {
+        self.osc_enabled.store(v, Ordering::Relaxed);
     }
 }
