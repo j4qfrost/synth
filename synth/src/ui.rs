@@ -109,7 +109,11 @@ impl eframe::App for SynthApp {
 
             let mut a = self.params.attack();
             if ui
-                .add(egui::Slider::new(&mut a, 0.001..=2.0).text("Attack (s)").logarithmic(true))
+                .add(
+                    egui::Slider::new(&mut a, 0.001..=2.0)
+                        .text("Attack (s)")
+                        .logarithmic(true),
+                )
                 .changed()
             {
                 self.params.set_attack(a);
@@ -117,7 +121,11 @@ impl eframe::App for SynthApp {
 
             let mut d = self.params.decay();
             if ui
-                .add(egui::Slider::new(&mut d, 0.001..=2.0).text("Decay (s)").logarithmic(true))
+                .add(
+                    egui::Slider::new(&mut d, 0.001..=2.0)
+                        .text("Decay (s)")
+                        .logarithmic(true),
+                )
                 .changed()
             {
                 self.params.set_decay(d);
@@ -133,7 +141,11 @@ impl eframe::App for SynthApp {
 
             let mut r = self.params.release();
             if ui
-                .add(egui::Slider::new(&mut r, 0.001..=4.0).text("Release (s)").logarithmic(true))
+                .add(
+                    egui::Slider::new(&mut r, 0.001..=4.0)
+                        .text("Release (s)")
+                        .logarithmic(true),
+                )
                 .changed()
             {
                 self.params.set_release(r);
@@ -144,7 +156,11 @@ impl eframe::App for SynthApp {
 
             let mut cutoff = self.params.cutoff_hz();
             if ui
-                .add(egui::Slider::new(&mut cutoff, 20.0..=20000.0).text("Cutoff (Hz)").logarithmic(true))
+                .add(
+                    egui::Slider::new(&mut cutoff, 20.0..=20000.0)
+                        .text("Cutoff (Hz)")
+                        .logarithmic(true),
+                )
                 .changed()
             {
                 self.params.set_cutoff_hz(cutoff);
@@ -163,7 +179,11 @@ impl eframe::App for SynthApp {
 
             let mut lfo_rate = self.params.lfo_rate_hz();
             if ui
-                .add(egui::Slider::new(&mut lfo_rate, 0.05..=20.0).text("LFO Rate (Hz)").logarithmic(true))
+                .add(
+                    egui::Slider::new(&mut lfo_rate, 0.05..=20.0)
+                        .text("LFO Rate (Hz)")
+                        .logarithmic(true),
+                )
                 .changed()
             {
                 self.params.set_lfo_rate_hz(lfo_rate);

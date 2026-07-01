@@ -22,11 +22,7 @@ use synth_state::{
 /// Drain pending control messages and render `out.len()` mono samples.
 /// One call per audio buffer — keeps cross-dylib calls to a minimum.
 #[no_mangle]
-pub fn process_buffer(
-    vm: &mut VoiceManager,
-    out: &mut [f32],
-    rx: &Receiver<AudioMessage>,
-) {
+pub fn process_buffer(vm: &mut VoiceManager, out: &mut [f32], rx: &Receiver<AudioMessage>) {
     while let Ok(msg) = rx.try_recv() {
         handle_message(vm, msg);
     }
@@ -70,14 +66,22 @@ pub fn render_mono(vm: &mut VoiceManager, out: &mut [f32]) {
             vm.lfo.phase -= 1.0;
         }
         let lfo_value = 1.0 - 4.0 * (vm.lfo.phase - 0.5).abs(); // triangle -1..1
-        let effective_cutoff = (base_cutoff * 2_f32.powf(lfo_value * lfo_depth))
-            .clamp(20.0, 20_000.0);
+        let effective_cutoff =
+            (base_cutoff * 2_f32.powf(lfo_value * lfo_depth)).clamp(20.0, 20_000.0);
 
         let mut acc = 0.0;
         for v in vm.voices.iter_mut() {
             acc += render_voice_sample(
-                v, dt, osc, attack, decay, sustain, release,
-                effective_cutoff, resonance, sample_rate,
+                v,
+                dt,
+                osc,
+                attack,
+                decay,
+                sustain,
+                release,
+                effective_cutoff,
+                resonance,
+                sample_rate,
             );
         }
         *sample = (acc / NUM_VOICES as f32) * master;
@@ -121,10 +125,7 @@ fn note_on(vm: &mut VoiceManager, note: u8, velocity: u8) {
 
 fn note_off(vm: &mut VoiceManager, note: u8) {
     for v in vm.voices.iter_mut() {
-        if v.note == note
-            && v.env.stage != EnvStage::Idle
-            && v.env.stage != EnvStage::Release
-        {
+        if v.note == note && v.env.stage != EnvStage::Idle && v.env.stage != EnvStage::Release {
             env_note_off(&mut v.env);
         }
     }
@@ -141,7 +142,14 @@ fn env_note_off(env: &mut Envelope) {
     env.time_in_stage = 0.0;
 }
 
-fn env_tick(env: &mut Envelope, dt: f32, attack: f32, decay: f32, sustain: f32, release: f32) -> f32 {
+fn env_tick(
+    env: &mut Envelope,
+    dt: f32,
+    attack: f32,
+    decay: f32,
+    sustain: f32,
+    release: f32,
+) -> f32 {
     match env.stage {
         EnvStage::Idle => {
             env.level = 0.0;
@@ -198,6 +206,7 @@ fn svf_lowpass(
     state.low
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_voice_sample(
     v: &mut Voice,
     dt: f32,

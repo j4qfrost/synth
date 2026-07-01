@@ -1,0 +1,38 @@
+# Woodpecker CI for synth — Rust audio synth workspace.
+when:
+  - event: pull_request
+  - event: push
+    branch: [main, master]
+  - event: manual
+
+clone:
+  git:
+    image: alpine/git
+    environment:
+      FORGEJO_USER:
+        from_secret: forgejo_user
+      FORGEJO_TOKEN:
+        from_secret: forgejo_token
+    commands:
+      - git init -b "${CI_COMMIT_BRANCH:-main}"
+      - 'git remote add origin "http://$$FORGEJO_USER:$$FORGEJO_TOKEN@forgejo:3000/${CI_REPO}.git"'
+      - 'git fetch --depth=1 origin "$$CI_COMMIT_SHA"'
+      - git checkout FETCH_HEAD
+
+steps:
+  check:
+    image: rust:1.95-bookworm
+    commands:
+      - apt-get update -qq && apt-get install -y --no-install-recommends libasound2-dev libwayland-dev libxkbcommon-dev libx11-dev libudev-dev pkg-config
+      - rustup component add rustfmt clippy
+      - cargo fmt --all --check
+      - cargo clippy --workspace --all-targets -- -D warnings
+      - cargo test --workspace --no-run
+
+  nix-build:
+    image: nixos/nix:2.24.9
+    environment:
+      NIX_CONFIG: "experimental-features = nix-command flakes"
+    commands:
+      - nix flake check
+      - nix build
