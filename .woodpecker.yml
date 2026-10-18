@@ -5,6 +5,14 @@ when:
     branch: [main, master]
   - event: manual
 
+# Pin to the snowman build agent. Unlabeled pipelines can be scheduled onto the
+# Hetzner box's woodpecker-deploy-agent (runner=deploy), which caps every step
+# container at 768 MiB / 1.5 vCPU. There, rustc gets OOM-killed (SIGKILL)
+# compiling x11rb-protocol (pipelines #3, #7). See
+# ~/infra/ci/target-vm/OBSERVABILITY.md.
+labels:
+  runner: snowman
+
 clone:
   git:
     image: alpine/git
